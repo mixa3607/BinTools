@@ -66,7 +66,9 @@ jobs:
         GIT_COMMIT_SHA: ${{ github.sha }}
         PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
         REPO_URL: ${{ github.repositoryUrl }}
+        TARGET_OS: ${{ matrix.target_os }}
       run: |
+        echo "TARGET_OS=${TARGET_OS}"           >> ${GITHUB_ENV}
         echo "GIT_REF=${GIT_REF}"               >> ${GITHUB_ENV}
         echo "GIT_REF_TYPE=${GIT_REF_TYPE}"     >> ${GITHUB_ENV}
         echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> ${GITHUB_ENV}
