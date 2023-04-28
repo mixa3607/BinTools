@@ -73,7 +73,7 @@ jobs:
         echo "PROJECT_URL=${PROJECT_URL}"       >> ${GITHUB_ENV}
         echo "REPO_URL=${REPO_URL}"             >> ${GITHUB_ENV}
     - name: Pack
-      run: dotnet pack -c Release -r $TARGET_OS -o ./out /p:SingleFile=true ArkProjects.BinTools
+      run: dotnet publish -c Release -r $TARGET_OS -o ./out /p:SingleFile=true ArkProjects.BinTools
     - name: Dist
       uses: actions/upload-artifact@v2
       with:
