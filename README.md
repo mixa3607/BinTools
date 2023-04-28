@@ -4,14 +4,14 @@
 ![latest release](https://img.shields.io/github/v/release/mixa3607/BinTools?style=flat-square)
 
 # Download
-Latest build in [Actions](./actions)
+Latest build in [Actions](../../actions)
 
-Release in [Releases](./release)
+Release in [Releases](../../releases)
 
 # HowTo
 
 ## parts.json format
-```json
+```
 {
   "Partitions": [
     {
@@ -26,11 +26,11 @@ Release in [Releases](./release)
 }
 ```
 Partition members:
-- BeginAddress (required)
-- EndAddress (required)
-- Name (required)
-- Extension (default "bin")
-- PadWith (default 0xff)
+- `BeginAddress` - required
+- `EndAddress` - required
+- `Name` - required
+- `Extension` - default: "bin"
+- `PadWith` - default: 0xFF
 
 
 ## Commands
