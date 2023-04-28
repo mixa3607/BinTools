@@ -1,0 +1,81 @@
+name: push
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x 
+    - uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{runner.os}}-nuget
+    - name: env vars
+      env:
+        GIT_REF: ${{ github.ref_name }}
+        GIT_REF_TYPE: ${{ github.ref_type }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
+        PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
+        REPO_URL: ${{ github.repositoryUrl }}
+      run: |
+        echo "GIT_REF=${GIT_REF}"               >> ${GITHUB_ENV}
+        echo "GIT_REF_TYPE=${GIT_REF_TYPE}"     >> ${GITHUB_ENV}
+        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> ${GITHUB_ENV}
+        echo "PROJECT_URL=${PROJECT_URL}"       >> ${GITHUB_ENV}
+        echo "REPO_URL=${REPO_URL}"             >> ${GITHUB_ENV}
+    - name: Build
+      run: dotnet build -c Release
+    - name: Test
+      run: dotnet test -c Release --no-build --logger trx --results-directory "TestResults"
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: ./TestResults
+      if: ${{always()}}
+  publish:
+    needs: [test]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target_os: [ "linux-x64", "win-x64" ]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x 
+    - uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{runner.os}}-nuget
+    - name: env vars
+      env:
+        GIT_REF: ${{ github.ref_name }}
+        GIT_REF_TYPE: ${{ github.ref_type }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
+        PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
+        REPO_URL: ${{ github.repositoryUrl }}
+      run: |
+        echo "GIT_REF=${GIT_REF}"               >> ${GITHUB_ENV}
+        echo "GIT_REF_TYPE=${GIT_REF_TYPE}"     >> ${GITHUB_ENV}
+        echo "GIT_COMMIT_SHA=${GIT_COMMIT_SHA}" >> ${GITHUB_ENV}
+        echo "PROJECT_URL=${PROJECT_URL}"       >> ${GITHUB_ENV}
+        echo "REPO_URL=${REPO_URL}"             >> ${GITHUB_ENV}
+    - name: Pack
+      run: dotnet pack -c Release -r $TARGET_OS -o ./out /p:SingleFile=true ArkProjects.BinTools
+    - name: Dist
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{matrix.target_os}}_prebuild
+        path: ./out
